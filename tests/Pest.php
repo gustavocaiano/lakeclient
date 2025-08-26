@@ -1,5 +1,5 @@
 <?php
 
-use GustavoCaiano\Windclient\Tests\TestCase;
+use Tests\TestCase;
 
 uses(TestCase::class)->in(__DIR__);

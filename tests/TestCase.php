@@ -1,6 +1,6 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Tests;
+namespace Tests;
 
 use GustavoCaiano\Windclient\WindclientServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
