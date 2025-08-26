@@ -333,14 +333,14 @@ foreach ($files as $file) {
 }
 
 if (! $useLaravelPint) {
-    safeUnlink(__DIR__.'/.github/workflows/fix-php-code-style-issues.yml');
+    safeUnlink(__DIR__ . '/.github/workflows-old/fix-php-code-style-issues.yml');
     safeUnlink(__DIR__.'/pint.json');
 }
 
 if (! $usePhpStan) {
     safeUnlink(__DIR__.'/phpstan.neon.dist');
     safeUnlink(__DIR__.'/phpstan-baseline.neon');
-    safeUnlink(__DIR__.'/.github/workflows/phpstan.yml');
+    safeUnlink(__DIR__ . '/.github/workflows-old/phpstan.yml');
 
     remove_composer_deps([
         'phpstan/extension-installer',
@@ -354,7 +354,7 @@ if (! $usePhpStan) {
 
 if (! $useDependabot) {
     safeUnlink(__DIR__.'/.github/dependabot.yml');
-    safeUnlink(__DIR__.'/.github/workflows/dependabot-auto-merge.yml');
+    safeUnlink(__DIR__ . '/.github/workflows-old/dependabot-auto-merge.yml');
 }
 
 if (! $useLaravelRay) {
@@ -362,7 +362,7 @@ if (! $useLaravelRay) {
 }
 
 if (! $useUpdateChangelogWorkflow) {
-    safeUnlink(__DIR__.'/.github/workflows/update-changelog.yml');
+    safeUnlink(__DIR__ . '/.github/workflows-old/update-changelog.yml');
 }
 
 confirm('Execute `composer install` and run tests?') && run('composer install && composer test');
