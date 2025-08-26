@@ -2,8 +2,8 @@
 
 namespace GustavoCaiano\Windclient\Commands;
 
-use Illuminate\Console\Command;
 use GustavoCaiano\Windclient\Windclient;
+use Illuminate\Console\Command;
 
 class ActivateCommand extends Command
 {
@@ -20,12 +20,12 @@ class ActivateCommand extends Command
 
         if ($result['ok']) {
             $this->comment('Activation OK');
+
             return self::SUCCESS;
         }
 
-        $this->error('Activation failed: ' . ($result['message'] ?? ''));
+        $this->error('Activation failed: '.($result['message'] ?? ''));
+
         return self::FAILURE;
     }
 }
-
-

@@ -10,5 +10,3 @@ class WindclientState extends Model
 
     protected $fillable = ['payload'];
 }
-
-

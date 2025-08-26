@@ -24,6 +24,7 @@ class DatabaseStateStore implements StateStore
         }
         try {
             $json = $this->encrypter->decrypt($row->payload);
+
             return json_decode($json, true) ?: [];
         } catch (DecryptException $e) {
             return [];
@@ -33,10 +34,8 @@ class DatabaseStateStore implements StateStore
     public function writeState(array $state): void
     {
         $payload = $this->encrypter->encrypt(json_encode($state));
-        $row = WindclientState::query()->first() ?: new WindclientState();
+        $row = WindclientState::query()->first() ?: new WindclientState;
         $row->payload = $payload;
         $row->save();
     }
 }
-
-

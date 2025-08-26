@@ -12,12 +12,15 @@ class LicensePageTest extends TestCase
 {
     private function mockHttp(array $responses): void
     {
-        $fake = new class($responses) extends WindHttpClient {
+        $fake = new class($responses) extends WindHttpClient
+        {
             private array $responses;
+
             public function __construct(array $responses)
             {
                 $this->responses = $responses;
             }
+
             public function post(string $uri, array $json): array
             {
                 return array_shift($this->responses) ?: ['status' => 500, 'body' => []];

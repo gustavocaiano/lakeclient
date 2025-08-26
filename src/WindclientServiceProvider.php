@@ -3,15 +3,14 @@
 namespace GustavoCaiano\Windclient;
 
 use Filament\Facades\Filament;
-use GustavoCaiano\Windclient\Commands\DeactivateCommand;
 use GustavoCaiano\Windclient\Commands\ActivateCommand;
+use GustavoCaiano\Windclient\Commands\DeactivateCommand;
 use GustavoCaiano\Windclient\Commands\WindclientCommand;
-use GustavoCaiano\Windclient\Filament\Plugins\WindClientPlugin;
+use GustavoCaiano\Windclient\Contracts\StateStore;
+use GustavoCaiano\Windclient\Storage\DatabaseStateStore;
+use GustavoCaiano\Windclient\Storage\FileStateStore;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use GustavoCaiano\Windclient\Contracts\StateStore;
-use GustavoCaiano\Windclient\Storage\FileStateStore;
-use GustavoCaiano\Windclient\Storage\DatabaseStateStore;
 
 class WindclientServiceProvider extends PackageServiceProvider
 {
@@ -39,6 +38,7 @@ class WindclientServiceProvider extends PackageServiceProvider
             if ($driver === 'database') {
                 return new DatabaseStateStore($app['encrypter']);
             }
+
             return new FileStateStore($app['files'], $app['encrypter']);
         });
 

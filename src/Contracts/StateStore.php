@@ -10,9 +10,7 @@ interface StateStore
     public function readState(): array;
 
     /**
-     * @param array<string,mixed> $state
+     * @param  array<string,mixed>  $state
      */
     public function writeState(array $state): void;
 }
-
-

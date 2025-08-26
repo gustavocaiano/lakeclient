@@ -12,6 +12,7 @@ use GustavoCaiano\Windclient\Windclient;
 class LicensePage extends Page implements HasForms
 {
     use InteractsWithForms;
+
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
     protected static string $view = 'windclient::filament.license-page';
