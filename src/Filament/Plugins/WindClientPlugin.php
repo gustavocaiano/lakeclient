@@ -23,7 +23,7 @@ class WindClientPlugin implements Plugin
     {
         $panel->pages([
             LicensePage::class,
-        ])->middleware([
+        ])->authMiddleware([
             EnsureLicensed::class,
         ]);
     }

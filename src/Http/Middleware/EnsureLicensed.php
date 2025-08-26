@@ -19,21 +19,45 @@ class EnsureLicensed
             $targetUrl = null;
 
             if (class_exists(Filament::class) && app()->bound('filament')) {
-                $panel = Filament::getCurrentPanel();
+                $panelId = null;
                 try {
-                    /** @var string|null $panel */
-                    $targetUrl = LicensePage::getUrl(panel: $panel);
+                    $currentPanel = Filament::getCurrentPanel();
+                    if (is_string($currentPanel)) {
+                        $panelId = $currentPanel;
+                    } elseif ($currentPanel && method_exists($currentPanel, 'getId')) {
+                        /** @var string $panelId */
+                        $panelId = $currentPanel->getId();
+                    } else {
+                        $panels = Filament::getPanels();
+                        if (! empty($panels)) {
+                            $first = reset($panels);
+                            if (is_string($first)) {
+                                $panelId = $first;
+                            } elseif ($first && method_exists($first, 'getId')) {
+                                /** @var string $panelId */
+                                $panelId = $first->getId();
+                            }
+                        }
+                    }
+
+                    /** @var string|null $panelId */
+                    $targetUrl = LicensePage::getUrl(panel: $panelId);
                 } catch (\Throwable $e) {
                     $targetUrl = null;
                 }
             }
 
-            // Prevent redirect loop if we're already on the license page
-            if ($targetUrl && rtrim($request->fullUrl(), '/') === rtrim(url($targetUrl), '/')) {
+            // If we cannot determine a target URL, do not redirect to avoid loops
+            if (! $targetUrl) {
                 return $next($request);
             }
 
-            return redirect($targetUrl ?: '/');
+            // Prevent redirect loop if we're already on the license page
+            if (rtrim($request->fullUrl(), '/') === rtrim(url($targetUrl), '/')) {
+                return $next($request);
+            }
+
+            return redirect($targetUrl);
         }
 
         return $next($request);

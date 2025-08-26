@@ -170,7 +170,35 @@ class Windclient
     {
         $state = $this->readState();
 
-        return isset($state['activation_id'], $state['lease_token']);
+        if (! isset($state['activation_id'], $state['lease_token'])) {
+            return false;
+        }
+
+        // Enforce lease TTL locally if provided by the server
+        $expiresAtRaw = $state['lease_expires_at'] ?? null;
+        if ($expiresAtRaw !== null) {
+            try {
+                $now = new \DateTimeImmutable('now');
+                if (is_numeric($expiresAtRaw)) {
+                    $expiresAt = (new \DateTimeImmutable('@'.((string) (int) $expiresAtRaw)))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+                } else {
+                    $parsed = strtotime((string) $expiresAtRaw);
+                    if ($parsed !== false) {
+                        $expiresAt = (new \DateTimeImmutable('@'.$parsed))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+                    } else {
+                        $expiresAt = null;
+                    }
+                }
+
+                if ($expiresAt !== null && $now >= $expiresAt) {
+                    return false;
+                }
+            } catch (\Throwable) {
+                // If we cannot parse the date, fall back to token presence
+            }
+        }
+
+        return true;
     }
 
     public function status(): string
