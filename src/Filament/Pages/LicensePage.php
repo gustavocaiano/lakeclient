@@ -36,7 +36,9 @@ class LicensePage extends Page implements HasForms
 
     public function mount(): void
     {
-        $this->license_key = $this->license_key ?: config('windclient.license.key');
+        /** @var string|null $config */
+        $config = config('windclient.license.key');
+        $this->license_key = $this->license_key ?: $config;
     }
 
     public function submit(): void

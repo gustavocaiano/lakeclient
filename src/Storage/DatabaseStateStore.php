@@ -5,7 +5,6 @@ namespace GustavoCaiano\Windclient\Storage;
 use GustavoCaiano\Windclient\Contracts\StateStore;
 use GustavoCaiano\Windclient\Models\WindclientState;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
-use Illuminate\Encryption\DecryptException;
 
 class DatabaseStateStore implements StateStore
 {
@@ -25,8 +24,12 @@ class DatabaseStateStore implements StateStore
         try {
             $json = $this->encrypter->decrypt($row->payload);
 
-            return json_decode($json, true) ?: [];
-        } catch (DecryptException $e) {
+            /** @var string $json */
+            $jsonDecoded = json_decode($json, true);
+
+            /** @var ?array<string,mixed> $jsonDecoded */
+            return $jsonDecoded ?: [];
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
             return [];
         }
     }

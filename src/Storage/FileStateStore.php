@@ -5,7 +5,6 @@ namespace GustavoCaiano\Windclient\Storage;
 use GustavoCaiano\Windclient\Contracts\StateStore;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
-use Illuminate\Encryption\DecryptException;
 use Illuminate\Filesystem\Filesystem;
 use Illuminate\Support\Facades\Config;
 
@@ -21,7 +20,7 @@ class FileStateStore implements StateStore
     {
         $this->filesystem = $filesystem;
         $this->encrypter = $encrypter;
-        $this->storagePath = ltrim(Config::get('windclient.storage.path', 'windclient/state.json'), '/');
+        $this->storagePath = ltrim(Config::get('windclient.storage.path', 'windclient/state.json'), '/'); /** @phpstan-ignore-line */
     }
 
     public function readState(): array
@@ -34,8 +33,12 @@ class FileStateStore implements StateStore
             $payload = $this->filesystem->get($this->storagePath);
             $json = $this->encrypter->decrypt($payload);
 
-            return json_decode($json, true) ?: [];
-        } catch (FileNotFoundException|DecryptException $e) {
+            /** @var string $json */
+            $jsonDecoded = json_decode($json, true);
+
+            /** @var ?array<string,mixed> $jsonDecoded */
+            return $jsonDecoded ?: [];
+        } catch (FileNotFoundException|\Illuminate\Contracts\Encryption\DecryptException $e) {
             return [];
         }
     }

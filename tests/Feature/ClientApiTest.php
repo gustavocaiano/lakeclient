@@ -8,27 +8,36 @@ use Tests\TestCase;
 
 class ClientApiTest extends TestCase
 {
+    /**
+     * @param  array<int,string|array<string,mixed>|int>  $responses
+     */
     private function setHttpResponseSequence(Windclient $client, array $responses): void
     {
         $fake = new class($responses) extends WindHttpClient
         {
+            /**
+             * @var array<int,string|array<string,mixed>|int>
+             */
             private array $responses;
 
+            /**
+             * @param  array<int, string|array<string,mixed>|int>  $responses
+             */
             public function __construct(array $responses)
             {
                 $this->responses = $responses;
             }
 
-            public function post(string $uri, array $json): array
+            public function post(string $uri, array $json): array|int|string
             {
                 return array_shift($this->responses) ?: ['status' => 500, 'body' => []];
             }
         };
 
         // Swap binding in container so any resolved Windclient uses the fake HTTP client
-        $this->app->instance(WindHttpClient::class, $fake);
+        $this->app?->instance(WindHttpClient::class, $fake);
         // Ensure a fresh Windclient singleton is constructed with the fake bound
-        $this->app->forgetInstance(Windclient::class);
+        $this->app?->forgetInstance(Windclient::class);
     }
 
     public function test_activate_success(): void
@@ -66,7 +75,7 @@ class ClientApiTest extends TestCase
         $client->writeState([]);
         $result = $client->heartbeat();
         expect($result['ok'])->toBeFalse();
-        expect($result['message'])->toBe('Not activated');
+        expect($result['message'] ?? '')->toBe('Not activated');
     }
 
     public function test_heartbeat_revoked_clears_state(): void

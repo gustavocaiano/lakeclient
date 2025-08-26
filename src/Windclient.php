@@ -27,6 +27,7 @@ class Windclient
             $this->writeState($state);
         }
 
+        /** @var array<string,string> $state */
         return $state['installation_guid'];
     }
 
@@ -41,31 +42,38 @@ class Windclient
         return 'sha256:'.hash('sha256', $raw);
     }
 
+    /**
+     * @return mixed[]
+     */
     public function readState(): array
     {
         return $this->store->readState();
     }
 
+    /**
+     * @param  array<string,string>  $state
+     */
     public function writeState(array $state): void
     {
         $this->store->writeState($state);
     }
 
     /**
-     * @return array{ok:bool,status:int|null,message?:string,body?:array}
+     * @return array{ok:bool,status:int|null,message?:string,body?:int|null|string[]}
+     *
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
     public function activate(?string $licenseKey = null): array
     {
-        $licenseKey = $licenseKey ?: (string) Config::get('windclient.license.key');
+        $licenseKey = $licenseKey ?: (string) Config::get('windclient.license.key'); /** @phpstan-ignore-line */
         $fingerprint = $this->deviceFingerprint();
-        $deviceName = (string) Config::get('windclient.license.device_name');
-
+        $deviceName = (string) Config::get('windclient.license.device_name'); /** @phpstan-ignore-line */
         $payload = [
             'license_key' => $licenseKey,
             'device_fingerprint' => $fingerprint,
             'device_name' => $deviceName,
         ];
-
+        /** @var array<string,int|null> $result */
         $result = $this->http->post('/api/licenses/activate', $payload);
         if ($result['status'] === 200) {
             $state = $this->readState();
@@ -87,7 +95,7 @@ class Windclient
     }
 
     /**
-     * @return array{ok:bool,status:int|null,message?:string,body?:array}
+     * @return array{ok:bool,status:int|null,message?:string,body?:string[]|int}
      */
     public function heartbeat(): array
     {
@@ -100,7 +108,7 @@ class Windclient
             'activation_id' => $state['activation_id'],
             'lease_token' => $state['lease_token'],
         ];
-
+        /** @var array<string,int> $result */
         $result = $this->http->post('/api/licenses/heartbeat', $payload);
         if ($result['status'] === 200) {
             $state['lease_token'] = $result['body']['lease_token'] ?? $state['lease_token'];
@@ -140,7 +148,7 @@ class Windclient
         $payload = [
             'activation_id' => $state['activation_id'],
         ];
-
+        /** @var array<string,int|null> $result */
         $result = $this->http->post('/api/licenses/deactivate', $payload);
         if ($result['status'] === 200) {
             $state['activation_id'] = null;

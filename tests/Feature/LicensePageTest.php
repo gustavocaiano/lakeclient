@@ -10,25 +10,34 @@ use Tests\TestCase;
 
 class LicensePageTest extends TestCase
 {
+    /**
+     * @param  array<int,string|array<string,mixed>|int>  $responses
+     */
     private function mockHttp(array $responses): void
     {
         $fake = new class($responses) extends WindHttpClient
         {
+            /**
+             * @var array<int,string|array<string,mixed>|int>
+             */
             private array $responses;
 
+            /**
+             * @param  array<int, string|array<string,mixed>|int>  $responses
+             */
             public function __construct(array $responses)
             {
                 $this->responses = $responses;
             }
 
-            public function post(string $uri, array $json): array
+            public function post(string $uri, array $json): array|int|string
             {
                 return array_shift($this->responses) ?: ['status' => 500, 'body' => []];
             }
         };
 
-        $this->app->instance(WindHttpClient::class, $fake);
-        $this->app->forgetInstance(Windclient::class);
+        $this->app?->instance(WindHttpClient::class, $fake);
+        $this->app?->forgetInstance(Windclient::class);
     }
 
     public function test_page_activation_success(): void

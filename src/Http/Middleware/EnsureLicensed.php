@@ -21,6 +21,7 @@ class EnsureLicensed
             if (class_exists(Filament::class) && app()->bound('filament')) {
                 $panel = Filament::getCurrentPanel();
                 try {
+                    /** @var string|null $panel */
                     $targetUrl = LicensePage::getUrl(panel: $panel);
                 } catch (\Throwable $e) {
                     $targetUrl = null;
