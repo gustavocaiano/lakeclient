@@ -47,6 +47,18 @@ You can publish the config file with:
 php artisan vendor:publish --tag="windclient-config"
 ```
 
+Base URL can include a port (e.g., http://localhost:8080):
+
+```env
+WIND_BASE_URL=http://localhost:8080
+```
+
+License key from env is optional. The Filament page accepts input and will be used if provided there:
+
+```env
+WIND_LICENSE_KEY=""
+```
+
 This is the contents of the published config file:
 
 ```php
@@ -62,9 +74,59 @@ php artisan vendor:publish --tag="windclient-views"
 
 ## Usage
 
+### Configure
+
+Set the server base URL (with port if needed):
+
+```env
+WIND_BASE_URL=http://localhost:8080
+```
+
+Optional: choose storage driver (file is default, or database):
+
+```env
+WIND_STORAGE_DRIVER=database
+```
+
+Then publish and run the migration if using database storage:
+
+```bash
+php artisan vendor:publish --tag="windclient-migrations"
+php artisan migrate
+```
+
+### Filament Panel
+
+- Add the plugin to your Filament panel provider:
+
 ```php
-$variable = new GustavoCaiano\Windclient();
-echo $variable->echoPhrase('Hello, GustavoCaiano!');
+->plugins([
+    \GustavoCaiano\Windclient\Filament\Plugins\WindClientPlugin::make(),
+])
+```
+
+- Protect routes with the middleware (optional if applied at panel level):
+
+```php
+\GustavoCaiano\Windclient\Http\Middleware\EnsureLicensed::class
+```
+
+- Open the License page and input the license key. The env `WIND_LICENSE_KEY` is optional and used only as a fallback if the form is empty.
+
+### CLI
+
+```bash
+php artisan wind:activate {key?}
+php artisan wind:heartbeat
+php artisan wind:deactivate
+```
+
+### Scheduler (recommended)
+
+Run a daily heartbeat via Scheduler:
+
+```php
+$schedule->command('wind:heartbeat')->daily();
 ```
 
 ## Testing

@@ -1,0 +1,66 @@
+<?php
+
+namespace Tests\Feature;
+
+use GustavoCaiano\Windclient\Filament\Pages\LicensePage;
+use GustavoCaiano\Windclient\Http\WindHttpClient;
+use GustavoCaiano\Windclient\Windclient;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+class LicensePageTest extends TestCase
+{
+    private function mockHttp(array $responses): void
+    {
+        $fake = new class($responses) extends WindHttpClient {
+            private array $responses;
+            public function __construct(array $responses)
+            {
+                $this->responses = $responses;
+            }
+            public function post(string $uri, array $json): array
+            {
+                return array_shift($this->responses) ?: ['status' => 500, 'body' => []];
+            }
+        };
+
+        $this->app->instance(WindHttpClient::class, $fake);
+        $this->app->forgetInstance(Windclient::class);
+    }
+
+    public function test_page_activation_success(): void
+    {
+        $this->mockHttp([
+            [
+                'status' => 200,
+                'body' => [
+                    'activation_id' => 'a',
+                    'lease_token' => 't',
+                    'lease_expires_at' => '2025-01-01T00:00:00Z',
+                ],
+            ],
+        ]);
+
+        Livewire::test(LicensePage::class)
+            ->set('license_key', 'abc-123')
+            ->call('submit');
+
+        expect(app(Windclient::class)->isLicensed())->toBeTrue();
+    }
+
+    public function test_page_activation_conflict(): void
+    {
+        $this->mockHttp([
+            [
+                'status' => 409,
+                'body' => [],
+            ],
+        ]);
+
+        Livewire::test(LicensePage::class)
+            ->set('license_key', 'bad-key')
+            ->call('submit');
+
+        expect(app(Windclient::class)->isLicensed())->toBeFalse();
+    }
+}
