@@ -6,7 +6,7 @@ class TestService
 {
     private bool $is_licensed = false;
 
-    public function activate()
+    public function activate(): void
     {
         $this->is_licensed = true;
     }
