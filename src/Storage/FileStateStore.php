@@ -54,3 +54,4 @@ class FileStateStore implements StateStore
         $this->filesystem->put($this->storagePath, $payload);
     }
 }
+

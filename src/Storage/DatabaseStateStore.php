@@ -42,3 +42,4 @@ class DatabaseStateStore implements StateStore
         $row->save();
     }
 }
+
