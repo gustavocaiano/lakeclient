@@ -1,12 +1,9 @@
 <?php
 
-
-
 namespace Tests\Services;
 
 class TestService
 {
-
     private bool $is_licensed = false;
 
     public function activate()

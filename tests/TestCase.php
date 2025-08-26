@@ -1,10 +1,10 @@
 <?php
 
-  namespace GustavoCaiano\Windclient\Tests;
+namespace GustavoCaiano\Windclient\Tests;
 
+use GustavoCaiano\Windclient\WindclientServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
-use GustavoCaiano\Windclient\WindclientServiceProvider;
 
 class TestCase extends Orchestra
 {

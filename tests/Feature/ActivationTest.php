@@ -1,15 +1,14 @@
 <?php
 
-
 it('can activate', function () {
-    //Arrange
+    // Arrange
     $service = app(\Tests\Services\TestService::class);
     expect($service->isLicensed())->not()->toBeTrue();
 
-    //Act
+    // Act
     $service->activate();
 
-    //Assert
+    // Assert
 
     expect($service->isLicensed())->toBeTrue();
 

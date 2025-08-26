@@ -2,9 +2,9 @@
 
 namespace GustavoCaiano\Windclient;
 
+use GustavoCaiano\Windclient\Commands\WindclientCommand;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
-use GustavoCaiano\Windclient\Commands\WindclientCommand;
 
 class WindclientServiceProvider extends PackageServiceProvider
 {
