@@ -17,9 +17,9 @@ class LicensePage extends Page implements HasForms
 
     protected static string $view = 'windclient::filament.license-page';
 
-    protected static ?string $navigationGroup = 'Wind';
-
     protected static ?string $navigationLabel = 'License';
+
+    protected static bool $shouldRegisterNavigation = true;
 
     public ?string $license_key = null;
 
@@ -28,8 +28,8 @@ class LicensePage extends Page implements HasForms
         return $form->schema([
             \Filament\Forms\Components\TextInput::make('license_key')
                 ->label('License key')
-                ->password()
-                ->revealable()
+//                ->password()
+//                ->revealable()
                 ->required(),
         ]);
     }
@@ -45,13 +45,44 @@ class LicensePage extends Page implements HasForms
     {
         /** @var Windclient $client */
         $client = app(Windclient::class);
-        $result = $client->activate($this->license_key ?: null);
 
-        if ($result['ok']) {
-            Notification::make()->title('License activated')->success()->send();
-        } else {
-            $message = $result['message'] ?? 'Activation failed';
-            Notification::make()->title($message)->danger()->send();
+        try {
+            $result = $client->activate($this->license_key ?: null);
+            if ($result['ok']) {
+                Notification::make()->title('License activated')->success()->send();
+                self::setShouldRegisterNavigation(true);
+            } else {
+                $message = $result['message'] ?? 'Activation failed';
+                Notification::make()->title($message)->danger()->send();
+            }
+        } catch (\Exception $e) {
+            Notification::make()->title('Error activating license')
+                ->body($e->getMessage())
+                ->danger()
+                ->color('danger')
+                ->send();
         }
+
+
+    }
+
+
+    /**
+     * @param bool $shouldRegisterNavigation
+     */
+    public static function setShouldRegisterNavigation(bool $shouldRegisterNavigation): void
+    {
+        self::$shouldRegisterNavigation = $shouldRegisterNavigation;
+    }
+
+
+    /**
+     * @return bool
+     */
+    public static function isShouldRegisterNavigation(): bool
+    {
+        /** @var Windclient $client */
+        $client = app(Windclient::class);
+        return ! $client->isLicensed();
     }
 }
