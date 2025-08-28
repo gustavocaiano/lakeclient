@@ -12,7 +12,8 @@ return [
         'device_name' => env('WIND_DEVICE_NAME', php_uname('n')),
     ],
     'heartbeat' => [
-        'interval_minutes' => env('WIND_HEARTBEAT_INTERVAL_MINUTES', 60),
+        // Renew a few seconds before server lease expiry. Server still dictates TTL.
+        'renew_threshold_seconds' => env('WIND_HEARTBEAT_RENEW_THRESHOLD_SECONDS', 15),
         'jitter_seconds' => env('WIND_HEARTBEAT_JITTER_SECONDS', 120),
     ],
     'storage' => [

@@ -50,7 +50,7 @@ class LicensePage extends Page implements HasForms
             $result = $client->activate($this->license_key ?: null);
             if ($result['ok']) {
                 Notification::make()->title('License activated')->success()->send();
-                self::setShouldRegisterNavigation(true);
+                self::setShouldRegisterNavigation(false);
             } else {
                 $message = $result['message'] ?? 'Activation failed';
                 Notification::make()->title($message)->danger()->send();

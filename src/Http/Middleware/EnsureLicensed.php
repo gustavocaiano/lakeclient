@@ -15,6 +15,16 @@ class EnsureLicensed
     {
         /** @var Windclient $client */
         $client = app(Windclient::class);
+        // Attempt a lazy heartbeat if the lease is close to expiring (server-driven via lease_expires_at)
+        try {
+            // Renew shortly before expiry (server-driven, based on lease_expires_at)
+            if ($client->shouldRenewLease()) {
+                $client->heartbeat();
+            }
+        } catch (\Throwable) {
+            // Ignore lazy heartbeat errors to not block requests
+        }
+
         if (! $client->isLicensed()) {
             $targetUrl = null;
 

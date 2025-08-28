@@ -123,11 +123,24 @@ php artisan wind:deactivate
 
 ### Scheduler (recommended)
 
-Run a daily heartbeat via Scheduler:
+Schedule heartbeats frequently; the server TTL dictates when renewals occur. The command will renew only when near expiry (server-driven) and supports jitter to avoid thundering herd.
+
+Examples:
 
 ```php
-$schedule->command('wind:heartbeat')->daily();
+// For short TTLs (e.g., 1–2 minutes), schedule every minute
+$schedule->command('wind:heartbeat')->everyMinute();
+
+// For moderate TTLs, schedule every 5 minutes
+$schedule->command('wind:heartbeat')->everyFiveMinutes();
 ```
+
+Optional jitter (bounded so it never delays beyond expiry):
+
+```env
+WIND_HEARTBEAT_JITTER_SECONDS=30
+```
+WIND_HEARTBEAT_RENEW_THRESHOLD_SECONDS=15
 
 ## Testing
 

@@ -175,22 +175,11 @@ class Windclient
         }
 
         // Enforce lease TTL locally if provided by the server
-        $expiresAtRaw = $state['lease_expires_at'] ?? null;
-        if ($expiresAtRaw !== null) {
+        $expiresAt = $this->getLeaseExpiry();
+        if ($expiresAt !== null) {
             try {
                 $now = new \DateTimeImmutable('now');
-                if (is_numeric($expiresAtRaw)) {
-                    $expiresAt = (new \DateTimeImmutable('@'.((string) (int) $expiresAtRaw)))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-                } else {
-                    $parsed = strtotime((string) $expiresAtRaw);
-                    if ($parsed !== false) {
-                        $expiresAt = (new \DateTimeImmutable('@'.$parsed))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-                    } else {
-                        $expiresAt = null;
-                    }
-                }
-
-                if ($expiresAt !== null && $now >= $expiresAt) {
+                if ($now >= $expiresAt) {
                     return false;
                 }
             } catch (\Throwable) {
@@ -204,5 +193,60 @@ class Windclient
     public function status(): string
     {
         return $this->isLicensed() ? 'active' : 'unknown';
+    }
+
+    /**
+     * Returns the lease expiry timestamp provided by the server, if available.
+     */
+    public function getLeaseExpiry(): ?\DateTimeImmutable
+    {
+        $state = $this->readState();
+        $expiresAtRaw = $state['lease_expires_at'] ?? null;
+        if ($expiresAtRaw === null) {
+            return null;
+        }
+        try {
+            if (is_numeric($expiresAtRaw)) {
+                return (new \DateTimeImmutable('@'.((string) (int) $expiresAtRaw)))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            }
+            $parsed = strtotime((string) $expiresAtRaw);
+            if ($parsed !== false) {
+                return (new \DateTimeImmutable('@'.$parsed))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+            }
+        } catch (\Throwable) {
+            return null;
+        }
+
+        return null;
+    }
+
+    /**
+     * Number of seconds until the lease expires (server-driven). Null if unknown.
+     */
+    public function secondsUntilLeaseExpiry(): ?int
+    {
+        $expiry = $this->getLeaseExpiry();
+        if ($expiry === null) {
+            return null;
+        }
+        $now = new \DateTimeImmutable('now');
+        return $expiry->getTimestamp() - $now->getTimestamp();
+    }
+
+    /**
+     * Whether the client should renew now, based on a small expiry threshold.
+     */
+    public function shouldRenewLease(?int $thresholdSeconds = null): bool
+    {
+        if ($thresholdSeconds === null) {
+            /** @var int $thresholdSeconds */
+            $thresholdSeconds = (int) \Illuminate\Support\Facades\Config::get('windclient.heartbeat.renew_threshold_seconds', 15);
+        }
+        $secondsLeft = $this->secondsUntilLeaseExpiry();
+        if ($secondsLeft === null) {
+            // No expiry known, renew to fetch server TTL
+            return true;
+        }
+        return $secondsLeft <= $thresholdSeconds;
     }
 }

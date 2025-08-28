@@ -4,6 +4,7 @@ namespace GustavoCaiano\Windclient\Commands;
 
 use GustavoCaiano\Windclient\Windclient;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Config;
 
 class WindclientCommand extends Command
 {
@@ -13,8 +14,41 @@ class WindclientCommand extends Command
 
     public function handle(): int
     {
+        // Optional jitter to stagger heartbeats when many instances run simultaneously
+        $jitter = (int) Config::get('windclient.heartbeat.jitter_seconds', 0);
+        if ($jitter > 0) {
+            try {
+                $delay = random_int(0, max(0, $jitter));
+                if ($delay > 0) {
+                    sleep($delay);
+                }
+            } catch (\Throwable) {
+                // ignore
+            }
+        }
+
         /** @var Windclient $client */
         $client = app(Windclient::class);
+        // Only renew when due (close to expiry) or when expiry is unknown
+        if (! $client->shouldRenewLease()) {
+            $this->comment('Skip: lease not due for renewal');
+            return self::SUCCESS;
+        }
+
+        // Bound jitter so we never delay beyond expiry
+        $secondsLeft = $client->secondsUntilLeaseExpiry();
+        if (is_int($secondsLeft) && $secondsLeft > 0 && $jitter > 0) {
+            $maxDelay = max(0, min($jitter, max(0, $secondsLeft - 1)));
+            try {
+                $delay = random_int(0, $maxDelay);
+                if ($delay > 0) {
+                    sleep($delay);
+                }
+            } catch (\Throwable) {
+                // ignore
+            }
+        }
+
         $result = $client->heartbeat();
         $this->comment($result['ok'] ? 'Heartbeat OK' : 'Heartbeat failed: '.($result['message'] ?? ''));
 
