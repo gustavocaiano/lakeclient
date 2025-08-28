@@ -65,7 +65,13 @@ class Windclient
      */
     public function activate(?string $licenseKey = null): array
     {
-        $licenseKey = $licenseKey ?: (string) Config::get('windclient.license.key'); /** @phpstan-ignore-line */
+        $state = $this->readState();
+        $licenseKey = $licenseKey
+            ?: (string) (Config::get('windclient.license.key') ?? '')
+            ?: (string) ($state['license_key'] ?? ''); /** @phpstan-ignore-line */
+        if ($licenseKey === '') {
+            return ['ok' => false, 'status' => null, 'message' => 'License key not configured'];
+        }
         $fingerprint = $this->deviceFingerprint();
         $deviceName = (string) Config::get('windclient.license.device_name'); /** @phpstan-ignore-line */
         $payload = [
@@ -80,6 +86,7 @@ class Windclient
             $state['activation_id'] = $result['body']['activation_id'] ?? null;
             $state['lease_token'] = $result['body']['lease_token'] ?? null;
             $state['lease_expires_at'] = $result['body']['lease_expires_at'] ?? null;
+            $state['license_key'] = $licenseKey;
             $this->writeState($state);
 
             return ['ok' => true, 'status' => 200, 'body' => $result['body']];
@@ -101,6 +108,12 @@ class Windclient
     {
         $state = $this->readState();
         if (! isset($state['activation_id'], $state['lease_token'])) {
+            // Try to (re)activate if we have a license key available
+            $activateResult = $this->activate(null);
+            if ($activateResult['ok'] ?? false) {
+                return ['ok' => true, 'status' => 200, 'body' => $activateResult['body'] ?? []];
+            }
+
             return ['ok' => false, 'status' => null, 'message' => 'Not activated'];
         }
 
@@ -119,6 +132,15 @@ class Windclient
         }
 
         if (in_array($result['status'], [401, 403, 410], true)) {
+            if ($result['status'] === 401) {
+                // Token invalid/expired: attempt transparent re-activation (server is authoritative)
+                $reactivate = $this->activate(null);
+                if ($reactivate['ok'] ?? false) {
+                    return ['ok' => true, 'status' => 200, 'body' => $reactivate['body'] ?? []];
+                }
+            }
+
+            // Clear volatile activation data but keep stored license_key for future re-activation
             $state['activation_id'] = null;
             $state['lease_token'] = null;
             $state['lease_expires_at'] = null;

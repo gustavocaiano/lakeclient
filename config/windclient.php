@@ -15,6 +15,8 @@ return [
         // Renew a few seconds before server lease expiry. Server still dictates TTL.
         'renew_threshold_seconds' => env('WIND_HEARTBEAT_RENEW_THRESHOLD_SECONDS', 15),
         'jitter_seconds' => env('WIND_HEARTBEAT_JITTER_SECONDS', 120),
+        // Safety margin to ensure request finishes before expiry
+        'network_margin_seconds' => env('WIND_HEARTBEAT_NETWORK_MARGIN_SECONDS', 2),
     ],
     'storage' => [
         'driver' => env('WIND_STORAGE_DRIVER', 'file'),

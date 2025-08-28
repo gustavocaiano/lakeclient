@@ -16,16 +16,6 @@ class WindclientCommand extends Command
     {
         // Optional jitter to stagger heartbeats when many instances run simultaneously
         $jitter = (int) Config::get('windclient.heartbeat.jitter_seconds', 0);
-        if ($jitter > 0) {
-            try {
-                $delay = random_int(0, max(0, $jitter));
-                if ($delay > 0) {
-                    sleep($delay);
-                }
-            } catch (\Throwable) {
-                // ignore
-            }
-        }
 
         /** @var Windclient $client */
         $client = app(Windclient::class);
@@ -35,10 +25,11 @@ class WindclientCommand extends Command
             return self::SUCCESS;
         }
 
-        // Bound jitter so we never delay beyond expiry
+        // Bound jitter so we never delay beyond expiry and keep a small network margin
         $secondsLeft = $client->secondsUntilLeaseExpiry();
+        $networkMargin = (int) Config::get('windclient.heartbeat.network_margin_seconds', 2);
         if (is_int($secondsLeft) && $secondsLeft > 0 && $jitter > 0) {
-            $maxDelay = max(0, min($jitter, max(0, $secondsLeft - 1)));
+            $maxDelay = max(0, min($jitter, max(0, $secondsLeft - $networkMargin)));
             try {
                 $delay = random_int(0, $maxDelay);
                 if ($delay > 0) {
