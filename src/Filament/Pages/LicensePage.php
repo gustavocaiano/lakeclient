@@ -19,7 +19,7 @@ class LicensePage extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'License';
 
-    protected static bool $shouldRegisterNavigation = true;
+    protected static bool $shouldRegisterNavigation = false;
 
     public ?string $license_key = null;
 
@@ -28,8 +28,6 @@ class LicensePage extends Page implements HasForms
         return $form->schema([
             \Filament\Forms\Components\TextInput::make('license_key')
                 ->label('License key')
-//                ->password()
-//                ->revealable()
                 ->required(),
         ]);
     }
@@ -50,7 +48,6 @@ class LicensePage extends Page implements HasForms
             $result = $client->activate($this->license_key ?: null);
             if ($result['ok']) {
                 Notification::make()->title('License activated')->success()->send();
-                self::setShouldRegisterNavigation(false);
             } else {
                 $message = $result['message'] ?? 'Activation failed';
                 Notification::make()->title($message)->danger()->send();
@@ -67,22 +64,10 @@ class LicensePage extends Page implements HasForms
     }
 
 
-    /**
-     * @param bool $shouldRegisterNavigation
-     */
-    public static function setShouldRegisterNavigation(bool $shouldRegisterNavigation): void
-    {
-        self::$shouldRegisterNavigation = $shouldRegisterNavigation;
-    }
 
 
-    /**
-     * @return bool
-     */
-    public static function isShouldRegisterNavigation(): bool
+    public function getTitle(): string
     {
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
-        return ! $client->isLicensed();
+        return __('License');
     }
 }

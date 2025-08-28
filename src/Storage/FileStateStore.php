@@ -15,17 +15,37 @@ class FileStateStore implements StateStore
     private EncrypterContract $encrypter;
 
     private string $storagePath;
+    private ?string $disk;
 
     public function __construct(Filesystem $filesystem, EncrypterContract $encrypter)
     {
         $this->filesystem = $filesystem;
         $this->encrypter = $encrypter;
         $this->storagePath = ltrim(Config::get('windclient.storage.path', 'windclient/state.json'), '/'); /** @phpstan-ignore-line */
+        /** @var string|null $disk */
+        $disk = Config::get('windclient.storage.disk'); /** @phpstan-ignore-line */
+        $this->disk = $disk !== null ? (string) $disk : null;
     }
 
     public function readState(): array
     {
         try {
+            if ($this->disk !== null) {
+                $contents = \Illuminate\Support\Facades\Storage::disk($this->disk)->exists($this->storagePath)
+                    ? \Illuminate\Support\Facades\Storage::disk($this->disk)->get($this->storagePath)
+                    : null;
+                if ($contents === null) {
+                    return [];
+                }
+                $json = $this->encrypter->decrypt($contents);
+
+                /** @var string $json */
+                $jsonDecoded = json_decode($json, true);
+
+                /** @var ?array<string,mixed> $jsonDecoded */
+                return $jsonDecoded ?: [];
+            }
+
             if (! $this->filesystem->exists($this->storagePath)) {
                 return [];
             }
@@ -47,6 +67,11 @@ class FileStateStore implements StateStore
     {
         $json = json_encode($state, JSON_PRETTY_PRINT);
         $payload = $this->encrypter->encrypt($json);
+        if ($this->disk !== null) {
+            \Illuminate\Support\Facades\Storage::disk($this->disk)->put($this->storagePath, $payload);
+            return;
+        }
+
         $dir = dirname($this->storagePath);
         if (! $this->filesystem->exists($dir)) {
             $this->filesystem->makeDirectory($dir, 0755, true);

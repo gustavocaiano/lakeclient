@@ -18,7 +18,9 @@ return [
     ],
     'storage' => [
         'driver' => env('WIND_STORAGE_DRIVER', 'file'),
-        // path under storage/app when using the file driver
+        // Laravel filesystem disk to use when using the file driver (e.g., local, s3)
+        'disk' => env('WIND_STORAGE_DISK', 'local'),
+        // path under the chosen disk root (for local, this is storage/app)
         'path' => env('WIND_STORAGE_PATH', 'windclient/state.json'),
     ],
 ];

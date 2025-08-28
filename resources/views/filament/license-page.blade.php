@@ -1,10 +1,6 @@
 <x-filament::page>
     <div class="space-y-6">
         <div class="prose max-w-none">
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">License</h2>
-            <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-                Device: {{ app(\GustavoCaiano\Windclient\Windclient::class)->deviceFingerprint() }}
-            </p>
             @php($state = app(\GustavoCaiano\Windclient\Windclient::class)->readState())
             <ul class="text-sm text-gray-600 dark:text-gray-400">
                 <li>Activation ID: {{ $state['activation_id'] ?? '—' }}</li>
