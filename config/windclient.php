@@ -10,6 +10,8 @@ return [
     'license' => [
         'key' => env('WIND_LICENSE_KEY'),
         'device_name' => env('WIND_DEVICE_NAME', php_uname('n')),
+        // Fingerprint strategy: 'guid' (stable across container restarts) or 'guid_env'
+        'fingerprint_mode' => env('WIND_FINGERPRINT_MODE', 'guid'),
     ],
     'heartbeat' => [
         // Renew a few seconds before server lease expiry. Server still dictates TTL.

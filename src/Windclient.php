@@ -2,6 +2,7 @@
 
 namespace GustavoCaiano\Windclient;
 
+use Carbon\CarbonImmutable;
 use GustavoCaiano\Windclient\Contracts\StateStore;
 use GustavoCaiano\Windclient\Http\WindHttpClient;
 use Illuminate\Support\Facades\Config;
@@ -34,12 +35,23 @@ class Windclient
     public function deviceFingerprint(): string
     {
         $guid = $this->installationGuid();
+        /** @var string $mode */
+        $mode = (string) Config::get('windclient.license.fingerprint_mode', 'guid'); /** @phpstan-ignore-line */
+        if ($mode === 'guid') {
+            $secret = (string) Config::get('app.key', '');
+            $digest = hash_hmac('sha256', $guid, $secret);
+            return 'sha256:'.$digest;
+        }
+
+        // 'guid_env' mixes environment details. This may change across container rebuilds.
         $os = php_uname('s').'-'.php_uname('r');
         $phpVersion = PHP_VERSION;
         $host = php_uname('n');
         $raw = $guid.'|'.$os.'|'.$phpVersion.'|'.$host;
 
-        return 'sha256:'.hash('sha256', $raw);
+        $secret = (string) Config::get('app.key', '');
+        $digest = hash_hmac('sha256', $raw, $secret);
+        return 'sha256:'.$digest;
     }
 
     /**
@@ -200,8 +212,8 @@ class Windclient
         $expiresAt = $this->getLeaseExpiry();
         if ($expiresAt !== null) {
             try {
-                $now = new \DateTimeImmutable('now');
-                if ($now >= $expiresAt) {
+                $nowTs = CarbonImmutable::now((string) (Config::get('app.timezone') ?: date_default_timezone_get()))->getTimestamp();
+                if ($nowTs >= $expiresAt->getTimestamp()) {
                     return false;
                 }
             } catch (\Throwable) {
@@ -220,7 +232,7 @@ class Windclient
     /**
      * Returns the lease expiry timestamp provided by the server, if available.
      */
-    public function getLeaseExpiry(): ?\DateTimeImmutable
+    public function getLeaseExpiry(): ?CarbonImmutable
     {
         $state = $this->readState();
         $expiresAtRaw = $state['lease_expires_at'] ?? null;
@@ -228,13 +240,11 @@ class Windclient
             return null;
         }
         try {
+            $tz = (string) (Config::get('app.timezone') ?: date_default_timezone_get());
             if (is_numeric($expiresAtRaw)) {
-                return (new \DateTimeImmutable('@'.((string) (int) $expiresAtRaw)))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
+                return CarbonImmutable::createFromTimestamp((int) $expiresAtRaw, $tz);
             }
-            $parsed = strtotime((string) $expiresAtRaw);
-            if ($parsed !== false) {
-                return (new \DateTimeImmutable('@'.$parsed))->setTimezone(new \DateTimeZone(date_default_timezone_get()));
-            }
+            return CarbonImmutable::parse((string) $expiresAtRaw, $tz);
         } catch (\Throwable) {
             return null;
         }
@@ -251,8 +261,8 @@ class Windclient
         if ($expiry === null) {
             return null;
         }
-        $now = new \DateTimeImmutable('now');
-        return $expiry->getTimestamp() - $now->getTimestamp();
+        $nowTs = CarbonImmutable::now((string) (Config::get('app.timezone') ?: date_default_timezone_get()))->getTimestamp();
+        return $expiry->getTimestamp() - $nowTs;
     }
 
     /**
