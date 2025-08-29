@@ -1,12 +1,12 @@
 {
-    "name": "gustavocaiano/windclient",
-    "description": "Laravel package to interact with the Windclient API",
+    "name": "gustavocaiano/lakeclient",
+    "description": "Laravel package to interact with the Lakeclient API",
     "keywords": [
         "licence",
         "api",
         "laravel"
     ],
-    "homepage": "https://github.com/gustavocaiano/windclient",
+    "homepage": "https://github.com/gustavocaiano/lakeclient",
     "license": "MIT",
     "authors": [
         {
@@ -30,8 +30,8 @@
     },
     "autoload": {
         "psr-4": {
-            "GustavoCaiano\\Windclient\\": "src/",
-            "GustavoCaiano\\Windclient\\Database\\Factories\\": "database/factories/"
+            "GustavoCaiano\\Lakeclient\\": "src/",
+            "GustavoCaiano\\Lakeclient\\Database\\Factories\\": "database/factories/"
         }
     },
     "autoload-dev": {
@@ -57,10 +57,10 @@
     "extra": {
         "laravel": {
             "providers": [
-                "GustavoCaiano\\Windclient\\WindclientServiceProvider"
+                "GustavoCaiano\\Lakeclient\\LakeclientServiceProvider"
             ],
             "aliases": {
-                "Windclient": "GustavoCaiano\\Windclient\\Facades\\Windclient"
+                "Lakeclient": "GustavoCaiano\\Lakeclient\\Facades\\Lakeclient"
             }
         }
     },

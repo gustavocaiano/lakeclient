@@ -2,8 +2,8 @@
 
 namespace Tests\Feature;
 
-use GustavoCaiano\Windclient\Http\WindHttpClient;
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Http\LakeHttpClient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Tests\TestCase;
 
 class ClientApiTest extends TestCase
@@ -11,9 +11,9 @@ class ClientApiTest extends TestCase
     /**
      * @param  array<int,string|array<string,mixed>|int>  $responses
      */
-    private function setHttpResponseSequence(Windclient $client, array $responses): void
+    private function setHttpResponseSequence(Lakeclient $client, array $responses): void
     {
-        $fake = new class($responses) extends WindHttpClient
+        $fake = new class($responses) extends LakeHttpClient
         {
             /**
              * @var array<int,string|array<string,mixed>|int>
@@ -34,15 +34,15 @@ class ClientApiTest extends TestCase
             }
         };
 
-        // Swap binding in container so any resolved Windclient uses the fake HTTP client
-        $this->app?->instance(WindHttpClient::class, $fake);
-        // Ensure a fresh Windclient singleton is constructed with the fake bound
-        $this->app?->forgetInstance(Windclient::class);
+        // Swap binding in container so any resolved Lakeclient uses the fake HTTP client
+        $this->app?->instance(LakeHttpClient::class, $fake);
+        // Ensure a fresh Lakeclient singleton is constructed with the fake bound
+        $this->app?->forgetInstance(Lakeclient::class);
     }
 
     public function test_activate_success(): void
     {
-        $this->setHttpResponseSequence(app(Windclient::class), [[
+        $this->setHttpResponseSequence(app(Lakeclient::class), [[
             'status' => 200,
             'body' => [
                 'activation_id' => 'a',
@@ -51,7 +51,7 @@ class ClientApiTest extends TestCase
             ],
         ]]);
 
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $result = $client->activate('key');
         expect($result['ok'])->toBeTrue();
         expect($client->isLicensed())->toBeTrue();
@@ -59,11 +59,11 @@ class ClientApiTest extends TestCase
 
     public function test_activate_conflict(): void
     {
-        $this->setHttpResponseSequence(app(Windclient::class), [[
+        $this->setHttpResponseSequence(app(Lakeclient::class), [[
             'status' => 409,
             'body' => [],
         ]]);
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $result = $client->activate('key');
         expect($result['ok'])->toBeFalse();
         expect($result['status'])->toBe(409);
@@ -71,7 +71,7 @@ class ClientApiTest extends TestCase
 
     public function test_heartbeat_unlicensed(): void
     {
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $client->writeState([]);
         $result = $client->heartbeat();
         expect($result['ok'])->toBeFalse();
@@ -80,14 +80,14 @@ class ClientApiTest extends TestCase
 
     public function test_heartbeat_revoked_clears_state(): void
     {
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $client->writeState(['activation_id' => 'a', 'lease_token' => 't']);
-        $this->setHttpResponseSequence(app(Windclient::class), [[
+        $this->setHttpResponseSequence(app(Lakeclient::class), [[
             'status' => 403,
             'body' => [],
         ]]);
         // Re-resolve client to pick up mocked HTTP
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $result = $client->heartbeat();
         expect($result['ok'])->toBeFalse();
         expect($client->isLicensed())->toBeFalse();
@@ -95,13 +95,13 @@ class ClientApiTest extends TestCase
 
     public function test_deactivate_success(): void
     {
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $client->writeState(['activation_id' => 'a', 'lease_token' => 't']);
-        $this->setHttpResponseSequence(app(Windclient::class), [[
+        $this->setHttpResponseSequence(app(Lakeclient::class), [[
             'status' => 200,
             'body' => [],
         ]]);
-        $client = app(Windclient::class);
+        $client = app(Lakeclient::class);
         $result = $client->deactivate();
         expect($result['ok'])->toBeTrue();
         expect($client->isLicensed())->toBeFalse();

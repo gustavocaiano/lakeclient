@@ -1,20 +1,20 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Http;
+namespace GustavoCaiano\Lakeclient\Http;
 
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Support\Facades\Config;
 
-class WindHttpClient
+class LakeHttpClient
 {
     private GuzzleClient $client;
 
     public function __construct(?GuzzleClient $client = null)
     {
-        $baseUri = rtrim((string) Config::get('windclient.server.base_url', 'http://localhost'), '/'); /** @phpstan-ignore-line */
-        $connectTimeout = (int) Config::get('windclient.server.connect_timeout', 5); /** @phpstan-ignore-line */
-        $timeout = (int) Config::get('windclient.server.request_timeout', 10); /** @phpstan-ignore-line */
+        $baseUri = rtrim((string) Config::get('lakeclient.server.base_url', 'http://localhost'), '/'); /** @phpstan-ignore-line */
+        $connectTimeout = (int) Config::get('lakeclient.server.connect_timeout', 5); /** @phpstan-ignore-line */
+        $timeout = (int) Config::get('lakeclient.server.request_timeout', 10); /** @phpstan-ignore-line */
         $this->client = $client ?: new GuzzleClient([
             'base_uri' => $baseUri,
             'connect_timeout' => $connectTimeout,

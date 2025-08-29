@@ -1,15 +1,15 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Models;
+namespace GustavoCaiano\Lakeclient\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 /**
  * @property string $payload
  */
-class WindclientState extends Model
+class LakeclientState extends Model
 {
-    protected $table = 'windclient_states';
+    protected $table = 'lakeclient_states';
 
     protected $fillable = ['payload'];
 }

@@ -1,7 +1,7 @@
-## Wind Client SDK (PHP) – Implementation Plan
+## Lake Client SDK (PHP) – Implementation Plan
 
 ### Goal
-Provide a PHP package (library) to embed in Laravel apps that handles license activation, daily heartbeats, and deactivation against Wind, with secure storage and optional Proof‑of‑Possession (PoP) hardening.
+Provide a PHP package (library) to embed in Laravel apps that handles license activation, daily heartbeats, and deactivation against Lake, with secure storage and optional Proof‑of‑Possession (PoP) hardening.
 
 ### MVP Scope
 - Config: base URL, license key, app/device names, heartbeat interval, timeouts.
@@ -14,34 +14,34 @@ Provide a PHP package (library) to embed in Laravel apps that handles license ac
 ### Package Structure
 - composer.json (library, PSR-4)
 - src/
-  - Config/WindClientConfig.php
-  - Http/WindHttpClient.php
+  - Config/LakeClientConfig.php
+  - Http/LakeHttpClient.php
   - Identity/InstallationIdStore.php
   - Identity/DeviceFingerprint.php
   - Storage/SecureStore.php
-  - WindClient.php (facade entry)
+  - LakeClient.php (facade entry)
   - Exceptions/*
 - src/Laravel/
-  - WindClientServiceProvider.php
-  - Facades/WindClient.php
-  - Console/Commands/WindHeartbeatCommand.php
+  - LakeClientServiceProvider.php
+  - Facades/LakeClient.php
+  - Console/Commands/LakeHeartbeatCommand.php
   - Middleware/EnsureLicensed.php (optional)
-- config/wind-client.php (publishable)
+- config/lake-client.php (publishable)
 - tests/
 
 ### Public API (proposed)
 ```php
-WindClient::activate(string $licenseKey = null): ActivationResult
-WindClient::heartbeat(): HeartbeatResult
-WindClient::deactivate(): void
-WindClient::isLicensed(): bool
-WindClient::status(): LicenseStatus // { active, revoked, expired, unknown }
+LakeClient::activate(string $licenseKey = null): ActivationResult
+LakeClient::heartbeat(): HeartbeatResult
+LakeClient::deactivate(): void
+LakeClient::isLicensed(): bool
+LakeClient::status(): LicenseStatus // { active, revoked, expired, unknown }
 ```
 
 ### Laravel Integration
 - Service provider binds config/services; registers console command.
-- Publish config: `php artisan vendor:publish --tag=wind-client-config`.
-- Scheduler: add `wind:heartbeat` daily or run on boot with jitter; optional route middleware `EnsureLicensed`.
+- Publish config: `php artisan vendor:publish --tag=lake-client-config`.
+- Scheduler: add `lake:heartbeat` daily or run on boot with jitter; optional route middleware `EnsureLicensed`.
 
 ### Device Fingerprint (MVP)
 - `installation_guid` (UUID v4) + OS name/version + PHP version + hostname → SHA‑256, prefix `sha256:`.
@@ -51,7 +51,7 @@ WindClient::status(): LicenseStatus // { active, revoked, expired, unknown }
 - Rolling nonce/jti to prevent replay; server tracks last seen jti per activation.
 - Concurrency detection: alerts/re-activation on overlaps.
 
-### Config Keys (config/wind-client.php)
+### Config Keys (config/lake-client.php)
 - server: base_url, connect_timeout, request_timeout
 - license: key (env), device_name
 - heartbeat: interval_minutes, jitter_seconds
@@ -65,16 +65,16 @@ WindClient::status(): LicenseStatus // { active, revoked, expired, unknown }
 - Works in Laravel: provider, publishable config, README
 
 ### CLI / Artisan
-- `php artisan wind:heartbeat`
-- `php artisan wind:deactivate`
+- `php artisan lake:heartbeat`
+- `php artisan lake:deactivate`
 
 ### Testing
 - Unit tests with mocked HTTP client (Guzzle MockHandler)
-- Optional integration test against local Wind server
+- Optional integration test against local Lake server
 
 ### Docs
 - Install via Composer
-- Configure .env → WIND_CLIENT_BASE_URL, WIND_LICENSE_KEY
+- Configure .env → LAKE_CLIENT_BASE_URL, LAKE_LICENSE_KEY
 - Usage example in a Laravel app service provider and scheduler
 
 ### Runtime validation strategy (important)
@@ -82,8 +82,8 @@ WindClient::status(): LicenseStatus // { active, revoked, expired, unknown }
 - Persist canonical state (encrypted): installation_guid, activation_id, lease_token, lease_expires_at, last_heartbeat_at, next_check_at.
 - Middleware behavior:
   - If no activation or now ≥ lease_expires_at → deny/redirect to activation UI.
-  - If within renew‑ahead window (e.g., lease_expires_at − 6h) and not already queued → enqueue a heartbeat job; return normally.
-  - Use a distributed lock (e.g., Cache::lock('wind:heartbeat', 60)) to avoid concurrent heartbeats.
+  - If within renew‑ahead lakeow (e.g., lease_expires_at − 6h) and not already queued → enqueue a heartbeat job; return normally.
+  - Use a distributed lock (e.g., Cache::lock('lake:heartbeat', 60)) to avoid concurrent heartbeats.
 - Scheduler/background job:
   - Run hourly or on boot: if now ≥ next_check_at → perform heartbeat.
   - On success: update lease_token, lease_expires_at, last_heartbeat_at, and set next_check_at = lease_expires_at − renew_ahead − jitter.

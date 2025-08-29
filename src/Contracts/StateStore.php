@@ -1,6 +1,6 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Contracts;
+namespace GustavoCaiano\Lakeclient\Contracts;
 
 interface StateStore
 {

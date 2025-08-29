@@ -1,11 +1,11 @@
 <x-filament::page>
     <div class="space-y-6">
         <div class="prose max-w-none">
-            @php($state = app(\GustavoCaiano\Windclient\Windclient::class)->readState())
+            @php($state = app(\GustavoCaiano\Lakeclient\Lakeclient::class)->readState())
             <ul class="text-sm text-gray-600 dark:text-gray-400">
                 <li>Activation ID: {{ $state['activation_id'] ?? '—' }}</li>
                 <li>Lease expires at: {{ $state['lease_expires_at'] ?? '—' }}</li>
-                <li>Status: {{ app(\GustavoCaiano\Windclient\Windclient::class)->isLicensed() ? 'Active' : 'Not active' }}</li>
+                <li>Status: {{ app(\GustavoCaiano\Lakeclient\Lakeclient::class)->isLicensed() ? 'Active' : 'Not active' }}</li>
             </ul>
         </div>
 

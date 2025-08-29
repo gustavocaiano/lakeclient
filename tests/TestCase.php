@@ -4,7 +4,7 @@ namespace Tests;
 
 use Filament\Facades\Filament;
 use Filament\Panel;
-use GustavoCaiano\Windclient\WindclientServiceProvider;
+use GustavoCaiano\Lakeclient\LakeclientServiceProvider;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Orchestra\Testbench\TestCase as Orchestra;
 
@@ -15,7 +15,7 @@ class TestCase extends Orchestra
         parent::setUp();
 
         Factory::guessFactoryNamesUsing(
-            fn (string $modelName) => 'GustavoCaiano\\Windclient\\Database\\Factories\\'.class_basename($modelName).'Factory'
+            fn (string $modelName) => 'GustavoCaiano\\Lakeclient\\Database\\Factories\\'.class_basename($modelName).'Factory'
         );
 
         // Minimal Filament panel for rendering pages in tests (no registry needed)
@@ -31,7 +31,7 @@ class TestCase extends Orchestra
             \Filament\Widgets\WidgetsServiceProvider::class,
             \Filament\Actions\ActionsServiceProvider::class,
             \Filament\FilamentServiceProvider::class,
-            WindclientServiceProvider::class,
+            LakeclientServiceProvider::class,
         ];
     }
 

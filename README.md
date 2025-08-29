@@ -1,16 +1,16 @@
-# windclient
+# lakeclient
 
-## client side of wind-licensor
+## client side of lake-licensor
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/gustavocaiano/windclient.svg?style=flat-square)](https://packagist.org/packages/gustavocaiano/windclient)
-[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/gustavocaiano/windclient/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/gustavocaiano/windclient/actions?query=workflow%3Arun-tests+branch%3Amain)
-[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/gustavocaiano/windclient/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/gustavocaiano/windclient/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
-[![Total Downloads](https://img.shields.io/packagist/dt/gustavocaiano/windclient.svg?style=flat-square)](https://packagist.org/packages/gustavocaiano/windclient)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/gustavocaiano/lakeclient.svg?style=flat-square)](https://packagist.org/packages/gustavocaiano/lakeclient)
+[![GitHub Tests Action Status](https://img.shields.io/github/actions/workflow/status/gustavocaiano/lakeclient/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/gustavocaiano/lakeclient/actions?query=workflow%3Arun-tests+branch%3Amain)
+[![GitHub Code Style Action Status](https://img.shields.io/github/actions/workflow/status/gustavocaiano/lakeclient/fix-php-code-style-issues.yml?branch=main&label=code%20style&style=flat-square)](https://github.com/gustavocaiano/lakeclient/actions?query=workflow%3A"Fix+PHP+code+style+issues"+branch%3Amain)
+[![Total Downloads](https://img.shields.io/packagist/dt/gustavocaiano/lakeclient.svg?style=flat-square)](https://packagist.org/packages/gustavocaiano/lakeclient)
 <!--delete-->
 ---
 This repo can be used to scaffold a Laravel package. Follow these steps to get started:
 
-1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this windclient.
+1. Press the "Use this template" button at the top of this repo to create a new repo with the contents of this lakeclient.
 2. Run "php ./configure.php" to run a script that will replace all placeholders throughout all the files.
 3. Have fun creating your package.
 4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
@@ -20,7 +20,7 @@ This is where your description should go. Limit it to a paragraph or two. Consid
 
 ## Support us
 
-[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/windclient.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/windclient)
+[<img src="https://github-ads.s3.eu-central-1.amazonaws.com/lakeclient.jpg?t=1" width="419px" />](https://spatie.be/github-ad-click/lakeclient)
 
 We invest a lot of resources into creating [best in class open source packages](https://spatie.be/open-source). You can support us by [buying one of our paid products](https://spatie.be/open-source/support-us).
 
@@ -31,32 +31,32 @@ We highly appreciate you sending us a postcard from your hometown, mentioning wh
 You can install the package via composer:
 
 ```bash
-composer require gustavocaiano/windclient
+composer require gustavocaiano/lakeclient
 ```
 
 You can publish and run the migrations with:
 
 ```bash
-php artisan vendor:publish --tag="windclient-migrations"
+php artisan vendor:publish --tag="lakeclient-migrations"
 php artisan migrate
 ```
 
 You can publish the config file with:
 
 ```bash
-php artisan vendor:publish --tag="windclient-config"
+php artisan vendor:publish --tag="lakeclient-config"
 ```
 
 Base URL can include a port (e.g., http://localhost:8080):
 
 ```env
-WIND_BASE_URL=http://localhost:8080
+LAKE_BASE_URL=http://localhost:8080
 ```
 
 License key from env is optional. The Filament page accepts input and will be used if provided there:
 
 ```env
-WIND_LICENSE_KEY=""
+LAKE_LICENSE_KEY=""
 ```
 
 This is the contents of the published config file:
@@ -69,7 +69,7 @@ return [
 Optionally, you can publish the views using
 
 ```bash
-php artisan vendor:publish --tag="windclient-views"
+php artisan vendor:publish --tag="lakeclient-views"
 ```
 
 ## Usage
@@ -79,19 +79,19 @@ php artisan vendor:publish --tag="windclient-views"
 Set the server base URL (with port if needed):
 
 ```env
-WIND_BASE_URL=http://localhost:8080
+LAKE_BASE_URL=http://localhost:8080
 ```
 
 Optional: choose storage driver (file is default, or database):
 
 ```env
-WIND_STORAGE_DRIVER=database
+LAKE_STORAGE_DRIVER=database
 ```
 
 Then publish and run the migration if using database storage:
 
 ```bash
-php artisan vendor:publish --tag="windclient-migrations"
+php artisan vendor:publish --tag="lakeclient-migrations"
 php artisan migrate
 ```
 
@@ -101,24 +101,24 @@ php artisan migrate
 
 ```php
 ->plugins([
-    \GustavoCaiano\Windclient\Filament\Plugins\WindClientPlugin::make(),
+    \GustavoCaiano\Lakeclient\Filament\Plugins\LakeClientPlugin::make(),
 ])
 ```
 
 - Protect routes with the middleware (optional if applied at panel level):
 
 ```php
-\GustavoCaiano\Windclient\Http\Middleware\EnsureLicensed::class
+\GustavoCaiano\Lakeclient\Http\Middleware\EnsureLicensed::class
 ```
 
-- Open the License page and input the license key. The env `WIND_LICENSE_KEY` is optional and used only as a fallback if the form is empty.
+- Open the License page and input the license key. The env `LAKE_LICENSE_KEY` is optional and used only as a fallback if the form is empty.
 
 ### CLI
 
 ```bash
-php artisan wind:activate {key?}
-php artisan wind:heartbeat
-php artisan wind:deactivate
+php artisan lake:activate {key?}
+php artisan lake:heartbeat
+php artisan lake:deactivate
 ```
 
 ### Scheduler (recommended)
@@ -129,18 +129,18 @@ Examples:
 
 ```php
 // For short TTLs (e.g., 1–2 minutes), schedule every minute
-$schedule->command('wind:heartbeat')->everyMinute();
+$schedule->command('lake:heartbeat')->everyMinute();
 
 // For moderate TTLs, schedule every 5 minutes
-$schedule->command('wind:heartbeat')->everyFiveMinutes();
+$schedule->command('lake:heartbeat')->everyFiveMinutes();
 ```
 
 Optional jitter (bounded so it never delays beyond expiry):
 
 ```env
-WIND_HEARTBEAT_JITTER_SECONDS=30
+LAKE_HEARTBEAT_JITTER_SECONDS=30
 ```
-WIND_HEARTBEAT_RENEW_THRESHOLD_SECONDS=15
+LAKE_HEARTBEAT_RENEW_THRESHOLD_SECONDS=15
 
 ## Testing
 

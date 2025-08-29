@@ -1,24 +1,24 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Commands;
+namespace GustavoCaiano\Lakeclient\Commands;
 
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Config;
 
-class WindclientCommand extends Command
+class LakeclientCommand extends Command
 {
-    public $signature = 'wind:heartbeat';
+    public $signature = 'lake:heartbeat';
 
     public $description = 'Send a heartbeat to renew the license lease';
 
     public function handle(): int
     {
         // Optional jitter to stagger heartbeats when many instances run simultaneously
-        $jitter = (int) Config::get('windclient.heartbeat.jitter_seconds', 0);
+        $jitter = (int) Config::get('lakeclient.heartbeat.jitter_seconds', 0);
 
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
+        /** @var Lakeclient $client */
+        $client = app(Lakeclient::class);
         // Only renew when due (close to expiry) or when expiry is unknown
         if (! $client->shouldRenewLease()) {
             $this->comment('Skip: lease not due for renewal');
@@ -27,7 +27,7 @@ class WindclientCommand extends Command
 
         // Bound jitter so we never delay beyond expiry and keep a small network margin
         $secondsLeft = $client->secondsUntilLeaseExpiry();
-        $networkMargin = (int) Config::get('windclient.heartbeat.network_margin_seconds', 2);
+        $networkMargin = (int) Config::get('lakeclient.heartbeat.network_margin_seconds', 2);
         if (is_int($secondsLeft) && $secondsLeft > 0 && $jitter > 0) {
             $maxDelay = max(0, min($jitter, max(0, $secondsLeft - $networkMargin)));
             try {

@@ -1,13 +1,13 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Filament\Pages;
+namespace GustavoCaiano\Lakeclient\Filament\Pages;
 
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
 use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 
 class LicensePage extends Page implements HasForms
 {
@@ -15,7 +15,7 @@ class LicensePage extends Page implements HasForms
 
     protected static ?string $navigationIcon = 'heroicon-o-key';
 
-    protected static string $view = 'windclient::filament.license-page';
+    protected static string $view = 'lakeclient::filament.license-page';
 
     protected static ?string $navigationLabel = 'License';
 
@@ -35,14 +35,14 @@ class LicensePage extends Page implements HasForms
     public function mount(): void
     {
         /** @var string|null $config */
-        $config = config('windclient.license.key');
+        $config = config('lakeclient.license.key');
         $this->license_key = $this->license_key ?: $config;
     }
 
     public function submit(): void
     {
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
+        /** @var Lakeclient $client */
+        $client = app(Lakeclient::class);
 
         try {
             $result = $client->activate($this->license_key ?: null);

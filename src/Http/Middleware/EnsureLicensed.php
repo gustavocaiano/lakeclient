@@ -1,11 +1,11 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Http\Middleware;
+namespace GustavoCaiano\Lakeclient\Http\Middleware;
 
 use Closure;
 use Filament\Facades\Filament;
-use GustavoCaiano\Windclient\Filament\Pages\LicensePage;
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Filament\Pages\LicensePage;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -13,8 +13,8 @@ class EnsureLicensed
 {
     public function handle(Request $request, Closure $next): Response
     {
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
+        /** @var Lakeclient $client */
+        $client = app(Lakeclient::class);
         // Attempt a lazy heartbeat if the lease is close to expiring (server-driven via lease_expires_at)
         try {
             // Renew shortly before expiry (server-driven, based on lease_expires_at)

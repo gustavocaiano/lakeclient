@@ -1,23 +1,23 @@
 <?php
 
-namespace GustavoCaiano\Windclient;
+namespace GustavoCaiano\Lakeclient;
 
 use Carbon\CarbonImmutable;
-use GustavoCaiano\Windclient\Contracts\StateStore;
-use GustavoCaiano\Windclient\Http\WindHttpClient;
+use GustavoCaiano\Lakeclient\Contracts\StateStore;
+use GustavoCaiano\Lakeclient\Http\LakeHttpClient;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Str;
 
-class Windclient
+class Lakeclient
 {
     private StateStore $store;
 
-    private WindHttpClient $http;
+    private LakeHttpClient $http;
 
-    public function __construct(StateStore $store, ?WindHttpClient $http = null)
+    public function __construct(StateStore $store, ?LakeHttpClient $http = null)
     {
         $this->store = $store;
-        $this->http = $http ?: new WindHttpClient;
+        $this->http = $http ?: new LakeHttpClient;
     }
 
     public function installationGuid(): string
@@ -36,7 +36,7 @@ class Windclient
     {
         $guid = $this->installationGuid();
         /** @var string $mode */
-        $mode = (string) Config::get('windclient.license.fingerprint_mode', 'guid'); /** @phpstan-ignore-line */
+        $mode = (string) Config::get('lakeclient.license.fingerprint_mode', 'guid'); /** @phpstan-ignore-line */
         if ($mode === 'guid') {
             $secret = (string) Config::get('app.key', '');
             $digest = hash_hmac('sha256', $guid, $secret);
@@ -79,13 +79,13 @@ class Windclient
     {
         $state = $this->readState();
         $licenseKey = $licenseKey
-            ?: (string) (Config::get('windclient.license.key') ?? '')
+            ?: (string) (Config::get('lakeclient.license.key') ?? '')
             ?: (string) ($state['license_key'] ?? ''); /** @phpstan-ignore-line */
         if ($licenseKey === '') {
             return ['ok' => false, 'status' => null, 'message' => 'License key not configured'];
         }
         $fingerprint = $this->deviceFingerprint();
-        $deviceName = (string) Config::get('windclient.license.device_name'); /** @phpstan-ignore-line */
+        $deviceName = (string) Config::get('lakeclient.license.device_name'); /** @phpstan-ignore-line */
         $payload = [
             'license_key' => $licenseKey,
             'device_fingerprint' => $fingerprint,
@@ -272,7 +272,7 @@ class Windclient
     {
         if ($thresholdSeconds === null) {
             /** @var int $thresholdSeconds */
-            $thresholdSeconds = (int) \Illuminate\Support\Facades\Config::get('windclient.heartbeat.renew_threshold_seconds', 15);
+            $thresholdSeconds = (int) \Illuminate\Support\Facades\Config::get('lakeclient.heartbeat.renew_threshold_seconds', 15);
         }
         $secondsLeft = $this->secondsUntilLeaseExpiry();
         if ($secondsLeft === null) {

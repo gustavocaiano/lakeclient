@@ -1,8 +1,8 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Storage;
+namespace GustavoCaiano\Lakeclient\Storage;
 
-use GustavoCaiano\Windclient\Contracts\StateStore;
+use GustavoCaiano\Lakeclient\Contracts\StateStore;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 use Illuminate\Contracts\Filesystem\FileNotFoundException;
 use Illuminate\Filesystem\Filesystem;
@@ -21,9 +21,9 @@ class FileStateStore implements StateStore
     {
         $this->filesystem = $filesystem;
         $this->encrypter = $encrypter;
-        $this->storagePath = ltrim(Config::get('windclient.storage.path', 'windclient/state.json'), '/'); /** @phpstan-ignore-line */
+        $this->storagePath = ltrim(Config::get('lakeclient.storage.path', 'lakeclient/state.json'), '/'); /** @phpstan-ignore-line */
         /** @var string|null $disk */
-        $disk = Config::get('windclient.storage.disk'); /** @phpstan-ignore-line */
+        $disk = Config::get('lakeclient.storage.disk'); /** @phpstan-ignore-line */
         $this->disk = $disk !== null ? (string) $disk : null;
     }
 

@@ -1,20 +1,20 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Commands;
+namespace GustavoCaiano\Lakeclient\Commands;
 
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Illuminate\Console\Command;
 
 class ActivateCommand extends Command
 {
-    public $signature = 'wind:activate {key?}';
+    public $signature = 'lake:activate {key?}';
 
     public $description = 'Activate the license with an optional key argument';
 
     public function handle(): int
     {
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
+        /** @var Lakeclient $client */
+        $client = app(Lakeclient::class);
         $key = $this->argument('key') ?: null;
         $result = $client->activate($key);
 

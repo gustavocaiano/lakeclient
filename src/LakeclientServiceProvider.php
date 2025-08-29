@@ -1,18 +1,18 @@
 <?php
 
-namespace GustavoCaiano\Windclient;
+namespace GustavoCaiano\Lakeclient;
 
 use Filament\Facades\Filament;
-use GustavoCaiano\Windclient\Commands\ActivateCommand;
-use GustavoCaiano\Windclient\Commands\DeactivateCommand;
-use GustavoCaiano\Windclient\Commands\WindclientCommand;
-use GustavoCaiano\Windclient\Contracts\StateStore;
-use GustavoCaiano\Windclient\Storage\DatabaseStateStore;
-use GustavoCaiano\Windclient\Storage\FileStateStore;
+use GustavoCaiano\Lakeclient\Commands\ActivateCommand;
+use GustavoCaiano\Lakeclient\Commands\DeactivateCommand;
+use GustavoCaiano\Lakeclient\Commands\LakeclientCommand;
+use GustavoCaiano\Lakeclient\Contracts\StateStore;
+use GustavoCaiano\Lakeclient\Storage\DatabaseStateStore;
+use GustavoCaiano\Lakeclient\Storage\FileStateStore;
 use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 
-class WindclientServiceProvider extends PackageServiceProvider
+class LakeclientServiceProvider extends PackageServiceProvider
 {
     public function configurePackage(Package $package): void
     {
@@ -22,11 +22,11 @@ class WindclientServiceProvider extends PackageServiceProvider
          * More info: https://github.com/spatie/laravel-package-tools
          */
         $package
-            ->name('windclient')
+            ->name('lakeclient')
             ->hasConfigFile()
             ->hasViews()
-            ->hasMigration('create_windclient_table')
-            ->hasCommand(WindclientCommand::class)
+            ->hasMigration('create_lakeclient_table')
+            ->hasCommand(LakeclientCommand::class)
             ->hasCommand(DeactivateCommand::class)
             ->hasCommand(ActivateCommand::class);
     }
@@ -34,7 +34,7 @@ class WindclientServiceProvider extends PackageServiceProvider
     public function packageRegistered(): void
     {
         $this->app->singleton(StateStore::class, function ($app) {
-            $driver = config('windclient.storage.driver', 'file');
+            $driver = config('lakeclient.storage.driver', 'file');
             if ($driver === 'database') {
                 return new DatabaseStateStore($app['encrypter']);
             }
@@ -42,10 +42,10 @@ class WindclientServiceProvider extends PackageServiceProvider
             return new FileStateStore($app['files'], $app['encrypter']);
         });
 
-        $this->app->singleton(Windclient::class, function ($app) {
-            return new Windclient(
+        $this->app->singleton(Lakeclient::class, function ($app) {
+            return new Lakeclient(
                 $app->make(StateStore::class),
-                $app->make(\GustavoCaiano\Windclient\Http\WindHttpClient::class)
+                $app->make(\GustavoCaiano\Lakeclient\Http\LakeHttpClient::class)
             );
         });
 

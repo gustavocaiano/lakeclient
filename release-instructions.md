@@ -1,4 +1,4 @@
-# Release Instructions (windclient)
+# Release Instructions (lakeclient)
 
 ## Prerequisites
 - Ensure tests pass locally: `composer test`
@@ -12,7 +12,7 @@
 
 ## Tagging a release on Git
 ```bash
-# From the windclient directory root
+# From the lakeclient directory root
 git pull
 # Replace 0.1.0 with your version
 git tag -a v0.1.0 -m "Release v0.1.0"
@@ -20,7 +20,7 @@ git push origin v0.1.0
 ```
 
 ## Create a GitHub Release
-- Go to GitHub repo `gustavocaiano/windclient`
+- Go to GitHub repo `gustavocaiano/lakeclient`
 - Draft a new release targeting tag `vX.Y.Z`
 - Paste highlights from `CHANGELOG.md`
 - Publish
@@ -34,11 +34,11 @@ git push origin v0.1.0
 ```json
 {
   "require": {
-    "gustavocaiano/windclient": "^0.1.0"
+    "gustavocaiano/lakeclient": "^0.1.0"
   }
 }
 ```
-- Then `composer update gustavocaiano/windclient`
+- Then `composer update gustavocaiano/lakeclient`
 - Follow README Usage to integrate
 
 ## Hotfix release

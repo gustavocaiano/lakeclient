@@ -1,6 +1,6 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Database\Factories;
+namespace GustavoCaiano\Lakeclient\Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 

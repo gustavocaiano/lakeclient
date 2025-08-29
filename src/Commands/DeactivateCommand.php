@@ -1,20 +1,20 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Commands;
+namespace GustavoCaiano\Lakeclient\Commands;
 
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Illuminate\Console\Command;
 
 class DeactivateCommand extends Command
 {
-    public $signature = 'wind:deactivate';
+    public $signature = 'lake:deactivate';
 
     public $description = 'Deactivate license activation on this installation';
 
     public function handle(): int
     {
-        /** @var Windclient $client */
-        $client = app(Windclient::class);
+        /** @var Lakeclient $client */
+        $client = app(Lakeclient::class);
         $result = $client->deactivate();
         $this->comment($result['ok'] ? 'Deactivated' : 'Deactivation failed: '.($result['message'] ?? ''));
 

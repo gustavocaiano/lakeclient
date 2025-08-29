@@ -1,9 +1,9 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Storage;
+namespace GustavoCaiano\Lakeclient\Storage;
 
-use GustavoCaiano\Windclient\Contracts\StateStore;
-use GustavoCaiano\Windclient\Models\WindclientState;
+use GustavoCaiano\Lakeclient\Contracts\StateStore;
+use GustavoCaiano\Lakeclient\Models\LakeclientState;
 use Illuminate\Contracts\Encryption\Encrypter as EncrypterContract;
 
 class DatabaseStateStore implements StateStore
@@ -17,7 +17,7 @@ class DatabaseStateStore implements StateStore
 
     public function readState(): array
     {
-        $row = WindclientState::query()->first();
+        $row = LakeclientState::query()->first();
         if (! $row || ! $row->payload) {
             return [];
         }
@@ -37,7 +37,7 @@ class DatabaseStateStore implements StateStore
     public function writeState(array $state): void
     {
         $payload = $this->encrypter->encrypt(json_encode($state));
-        $row = WindclientState::query()->first() ?: new WindclientState;
+        $row = LakeclientState::query()->first() ?: new LakeclientState;
         $row->payload = $payload;
         $row->save();
     }

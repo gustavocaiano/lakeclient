@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
-use GustavoCaiano\Windclient\Filament\Pages\LicensePage;
-use GustavoCaiano\Windclient\Http\WindHttpClient;
-use GustavoCaiano\Windclient\Windclient;
+use GustavoCaiano\Lakeclient\Filament\Pages\LicensePage;
+use GustavoCaiano\Lakeclient\Http\LakeHttpClient;
+use GustavoCaiano\Lakeclient\Lakeclient;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -15,7 +15,7 @@ class LicensePageTest extends TestCase
      */
     private function mockHttp(array $responses): void
     {
-        $fake = new class($responses) extends WindHttpClient
+        $fake = new class($responses) extends LakeHttpClient
         {
             /**
              * @var array<int,string|array<string,mixed>|int>
@@ -36,8 +36,8 @@ class LicensePageTest extends TestCase
             }
         };
 
-        $this->app?->instance(WindHttpClient::class, $fake);
-        $this->app?->forgetInstance(Windclient::class);
+        $this->app?->instance(LakeHttpClient::class, $fake);
+        $this->app?->forgetInstance(Lakeclient::class);
     }
 
     public function test_page_activation_success(): void
@@ -57,7 +57,7 @@ class LicensePageTest extends TestCase
             ->set('license_key', 'abc-123')
             ->call('submit');
 
-        expect(app(Windclient::class)->isLicensed())->toBeTrue();
+        expect(app(Lakeclient::class)->isLicensed())->toBeTrue();
     }
 
     public function test_page_activation_conflict(): void
@@ -73,6 +73,6 @@ class LicensePageTest extends TestCase
             ->set('license_key', 'bad-key')
             ->call('submit');
 
-        expect(app(Windclient::class)->isLicensed())->toBeFalse();
+        expect(app(Lakeclient::class)->isLicensed())->toBeFalse();
     }
 }

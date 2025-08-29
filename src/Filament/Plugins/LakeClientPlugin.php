@@ -1,13 +1,13 @@
 <?php
 
-namespace GustavoCaiano\Windclient\Filament\Plugins;
+namespace GustavoCaiano\Lakeclient\Filament\Plugins;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use GustavoCaiano\Windclient\Filament\Pages\LicensePage;
-use GustavoCaiano\Windclient\Http\Middleware\EnsureLicensed;
+use GustavoCaiano\Lakeclient\Filament\Pages\LicensePage;
+use GustavoCaiano\Lakeclient\Http\Middleware\EnsureLicensed;
 
-class WindClientPlugin implements Plugin
+class LakeClientPlugin implements Plugin
 {
     public static function make(): static
     {
@@ -16,7 +16,7 @@ class WindClientPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'windclient';
+        return 'lakeclient';
     }
 
     public function register(Panel $panel): void
