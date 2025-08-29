@@ -1,5 +1,7 @@
 # lakeclient
 
+## Licenses and Activations with Key Encryption
+
 ## client side of lake-licensor
 
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/gustavocaiano/lakeclient.svg?style=flat-square)](https://packagist.org/packages/gustavocaiano/lakeclient)
